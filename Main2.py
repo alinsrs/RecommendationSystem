@@ -13,8 +13,8 @@ def main():
     # مرحله 2: آموزش مدل
     trainer = LSTMTrainer(
         sequences, targets, num_products,
-        embed_dim=64, hidden_dim=128,
-        batch_size=128, lr=0.001, epochs=10
+        embed_dim=128, hidden_dim=256,
+        batch_size=128, lr=0.0005, epochs=100
     )
     trainer.train()
     trainer.save_model("models/lstm_model.pth")

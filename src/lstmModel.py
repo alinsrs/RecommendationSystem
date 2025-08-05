@@ -2,10 +2,16 @@ import torch
 import torch.nn as nn
 
 class LSTMRecommender(nn.Module):
-    def __init__(self, num_products, embed_dim=64, hidden_dim=128):
+    def __init__(self, num_products, embed_dim=128, hidden_dim=256):
         super(LSTMRecommender, self).__init__()
         self.embedding = nn.Embedding(num_products, embed_dim)
-        self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
+        self.lstm = nn.LSTM(
+            input_size=embed_dim,
+            hidden_size=hidden_dim,
+            num_layers=2,
+            dropout=0.2,  # فقط وقتی num_layers > 1 باشد، dropout اعمال می‌شود
+            batch_first=True
+        )
         self.fc = nn.Linear(hidden_dim, num_products)
 
     def forward(self, x):

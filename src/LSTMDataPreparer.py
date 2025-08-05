@@ -2,7 +2,7 @@ import pandas as pd
 from collections import defaultdict
 
 class LSTMDataPreparer:
-    def __init__(self, filepath, min_length=2):
+    def __init__(self, filepath, min_length=5):
         self.filepath = filepath
         self.min_length = min_length  # حداقل تعداد محصولات در هر سفارش
         self.sequences = []
@@ -15,28 +15,30 @@ class LSTMDataPreparer:
 
         orders = defaultdict(list)
         for _, row in df.iterrows():
-            orders[row["order_id"]].append(int(row["product_id"]))
+            product_id = int(row["product_id"])
+            orders[row["order_id"]].append(product_id)
 
         all_products = set()
 
         for order in orders.values():
             if len(order) >= self.min_length:
-                for i in range(1, len(order)):
-                    seq = order[:i]
-                    target = order[i]
-                    self.sequences.append(seq)
-                    self.targets.append(target)
-                    all_products.update(seq)
-                    all_products.add(target)
+                for i in range(self.min_length, len(order)):
+                    subseq = order[:i + 1]
+                    self.sequences.append(subseq)
+                    all_products.update(subseq)  # جمع‌آوری همه آیتم‌های منحصربه‌فرد
 
-        self.num_products = max(all_products)
+        if all_products:
+            self.num_products = max(all_products)
+        else:
+            raise ValueError("No valid sequences found. Please check your data.")
+
         print(f"✅ Total sequences prepared: {len(self.sequences)}")
 
     def get_sequences(self):
-        return self.sequences
+        return [seq[:-1] for seq in self.sequences]
 
     def get_targets(self):
-        return self.targets
+        return [seq[-1] for seq in self.sequences]
 
     def get_num_products(self):
         return self.num_products
